@@ -20,7 +20,6 @@ public class ATMapp {
             IUserType account = promptLogin(conn);
             if(account != null) {
                 account.showUserActions();
-
             }
         } catch (SQLException e) {
             e.printStackTrace();
