@@ -53,12 +53,18 @@ public class ATMapp {
                     return new Administrator(conn);
                 } else {
                     System.out.println("Customer Login Successful");
-                    return new Customer(loginResult);
+                    return createCustomerFromResultSet(loginResult, conn);
                 }
             }
         } catch (SQLException e) {
             System.out.println("Login Query Error: " + e.getMessage());
         }
         return null;
+    }
+
+    public Customer createCustomerFromResultSet(ResultSet resultSet, Connection conn) throws SQLException {
+        int accountID = resultSet.getInt("account_ID");
+        int balance = resultSet.getInt("balance");
+        return new Customer(accountID, balance, conn);
     }
 }
