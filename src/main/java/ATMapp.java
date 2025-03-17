@@ -1,3 +1,6 @@
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -6,6 +9,8 @@ import java.util.Scanner;
 
 public class ATMapp {
     public static void main(String[] args) {
+        Injector injector = Guice.createInjector(new ATMModule());
+        Connection connection = injector.getInstance(Connection.class);
         ATMapp app = new ATMapp();
         app.startATM();
     }
@@ -14,10 +19,17 @@ public class ATMapp {
         Admin: John123 12345
         Customer: Max123 12345
      */
+
+    /*Tightly Coupled
+     try (Connection conn = MySQLSource.getConnection()){
+            DatabaseSchema.createTable();
+            IUserService account = promptLogin(conn);
+    */
+
     private void startATM() {
         try (Connection conn = MySQLSource.getConnection()){
             DatabaseSchema.createTable();
-            IUserType account = promptLogin(conn);
+            IUserService account = promptLogin(conn);
             if(account != null) {
                 account.showUserActions();
             }
@@ -26,7 +38,7 @@ public class ATMapp {
         }
     }
 
-    private IUserType promptLogin(Connection conn) throws SQLException {
+    private IUserService promptLogin(Connection conn) throws SQLException {
         Scanner auth = new Scanner(System.in);
 
         System.out.println("Please Sign in");
@@ -43,6 +55,10 @@ public class ATMapp {
             ResultSet loginResult = preparedUserQuery.executeQuery();
 
             /* Puts cursor to the first result and checks it, if it doesnt exist, no matched login */
+            /* Tightly Coupled
+             @new Administrator(conn);
+             @new CustomerService
+             */
             if(!loginResult.next()) {
                 System.out.println("Invalid Login");
             } else {
@@ -53,7 +69,7 @@ public class ATMapp {
                     return new Administrator(conn);
                 } else {
                     System.out.println("Customer Login Successful");
-                    return createCustomerFromResultSet(loginResult, conn);
+                    return new CustomerService(createCustomerFromResultSet(loginResult, conn));
                 }
             }
         } catch (SQLException e) {

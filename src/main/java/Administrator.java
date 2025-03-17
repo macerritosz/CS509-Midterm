@@ -1,7 +1,7 @@
 import java.sql.*;
 import java.util.Scanner;
 
-public class Administrator implements IUserType {
+public class Administrator implements IUserService {
     private final Connection connection;
 
 
