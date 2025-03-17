@@ -1,5 +1,7 @@
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import org.checkerframework.checker.units.qual.A;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,11 +10,13 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public class ATMapp {
-    public static void main(String[] args) {
-        Injector injector = Guice.createInjector(new ATMModule());
-        Connection connection = injector.getInstance(Connection.class);
-        ATMapp app = new ATMapp();
-        app.startATM();
+    private final DatabaseConnection databaseConnection;
+    private final IUserServiceBuilder userServiceBuilder;
+
+    @Inject
+    public ATMapp (DatabaseConnection databaseConnection, IUserServiceBuilder userServiceBuilder ) {
+        this.databaseConnection = databaseConnection;
+        this.userServiceBuilder = userServiceBuilder;
     }
     /*
         Default Admin and Customer Accounts:
@@ -26,8 +30,8 @@ public class ATMapp {
             IUserService account = promptLogin(conn);
     */
 
-    private void startATM() {
-        try (Connection conn = MySQLSource.getConnection()){
+    public void startATM() {
+        try (Connection conn = databaseConnection.getConnection()){
             DatabaseSchema.createTable();
             IUserService account = promptLogin(conn);
             if(account != null) {
@@ -61,26 +65,14 @@ public class ATMapp {
              */
             if(!loginResult.next()) {
                 System.out.println("Invalid Login");
+                return null;
             } else {
-                String Account_type = loginResult.getString("Account_Type");
-                System.out.println("Account Type: " + Account_type);
-                if(Account_type.equals("ADMIN")) {
-                    System.out.println("Admin Login Successful");
-                    return new Administrator(conn);
-                } else {
-                    System.out.println("Customer Login Successful");
-                    return new CustomerService(createCustomerFromResultSet(loginResult, conn));
-                }
+                String account_type = loginResult.getString("Account_Type");
+                return userServiceBuilder.createUserService(conn, account_type, loginResult );
             }
         } catch (SQLException e) {
             System.out.println("Login Query Error: " + e.getMessage());
         }
         return null;
-    }
-
-    public Customer createCustomerFromResultSet(ResultSet resultSet, Connection conn) throws SQLException {
-        int accountID = resultSet.getInt("account_ID");
-        int balance = resultSet.getInt("balance");
-        return new Customer(accountID, balance, conn);
     }
 }

@@ -222,12 +222,13 @@ public class Administrator implements IUserService {
         ResultSet accountMatch = preparedLoginMatch.executeQuery();
 
         if (accountMatch.next()) {
-            System.out.println("Found Account with ID: " + accountNum);
+            System.out.println("\nFound Account with ID: " + accountNum);
             System.out.println("Holder: " + accountMatch.getString("holder"));
             System.out.println("Balance: " + accountMatch.getString("balance"));
             System.out.println("Status: " + accountMatch.getString("status"));
             System.out.println("Login: " + accountMatch.getString("login"));
             System.out.println("PIN: " + accountMatch.getString("pin"));
+            System.out.println();
             showUserActions();
         } else {
             System.out.println("Account not found");
