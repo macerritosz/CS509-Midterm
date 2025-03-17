@@ -32,7 +32,7 @@ public class CustomerService implements IUserService {
                 displayBalance();
                 break;
             default:
-                System.out.println("Exiting...");
+                System.out.println("Exiting...\n");
                 System.exit(0);
                 break;
         }

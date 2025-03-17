@@ -54,7 +54,7 @@ public class Administrator implements IUserService {
             System.out.println("Enter new account Login: ");
             login = scanner.nextLine();
             if (checkLoginExists(login)) {
-                System.out.println("Account already exists! \n");
+                System.err.println("Account already exists! \n");
                 error = true;
                 continue;
             }
@@ -62,7 +62,7 @@ public class Administrator implements IUserService {
             System.out.println("Enter a 5 digit account PIN: ");
             pin = scanner.nextLine();
             if (!pin.matches("\\d{5}")) {
-                System.out.println("Invalid pin \n");
+                System.err.println("Invalid pin \n");
                 error = true;
                 continue;
             }
@@ -73,7 +73,7 @@ public class Administrator implements IUserService {
             System.out.println("Enter new account Starting Balance: ");
             balance = scanner.nextLine();
             if (Double.parseDouble(balance) < 0) {
-                System.out.println("Initial Balance cannot be negative \n");
+                System.err.println("Initial Balance cannot be negative \n");
                 error = true;
                 continue;
             }
@@ -81,7 +81,7 @@ public class Administrator implements IUserService {
             System.out.println("Enter new account Status: ");
             status = scanner.nextLine();
             if (!status.equalsIgnoreCase("ACTIVE") && !status.equalsIgnoreCase("DISABLED")) {
-                System.out.println("Invalid Account Status \n");
+                System.err.println("Invalid Account Status \n");
                 error = true;
             } else {
                 status = status.toUpperCase();
@@ -106,7 +106,7 @@ public class Administrator implements IUserService {
                 showUserActions();
             }
         } else {
-            System.out.println("Account Creation Failed");
+            System.err.println("Account Creation Failed\n");
             showUserActions();
         }
     }
@@ -115,10 +115,19 @@ public class Administrator implements IUserService {
         String accountNum;
         String matchNum;
         Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Deleting An account... ");
-        System.out.println("Enter account number for account to be deleted: ");
-        accountNum = scanner.nextLine();
+        boolean error;
+       do {
+            System.out.println("Deleting An account... ");
+            System.out.println("Enter account number for account to be deleted: ");
+            accountNum = scanner.nextLine();
+            try {
+                Integer.parseInt(accountNum);
+                error = false;
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid account number \n");
+                error = true;
+            }
+        } while (error);
         //check not empty and only numeric
 
         String accMatchQuery = " SELECT holder FROM ACCOUNTS WHERE account_id = ?";
@@ -128,18 +137,29 @@ public class Administrator implements IUserService {
 
         if (accountMatch.next()) {
             String holder = accountMatch.getString("holder");
-            System.out.println("You with to delete the account held by " + holder + " please re-enter the account Number: ");
+            System.out.println("You wish to delete the account held by " + holder + ". Please re-enter the account Number: ");
             matchNum = scanner.nextLine();
+            try {
+                Integer.parseInt(matchNum);
+            } catch (NumberFormatException e) {
+                System.err.println("Numbers Did Not Match, Please pick another action... \n");
+                showUserActions();
+            }
             if (accountNum.equals(matchNum)) {
                 String deleteStatement = "DELETE FROM accounts WHERE account_id = ?";
                 PreparedStatement preparedDeleteStatement = connection.prepareStatement(deleteStatement);
                 preparedDeleteStatement.setString(1, accountNum);
                 int result = preparedDeleteStatement.executeUpdate();
                 if (result == 1) {
-                    System.out.println("Account Successfully Deleted -- Account ID: " + accountNum);
+                    System.out.println("Account Successfully Deleted -- Account ID: " + accountNum +"\n");
                     showUserActions();
                 }
+            } else {
+                System.err.println("Numbers Did Not Match, Please pick another action... \n");
+                showUserActions();
             }
+        } else {
+            System.err.println("Account Number is Not Assigned \n");
         }
         showUserActions();
     }
@@ -154,7 +174,6 @@ public class Administrator implements IUserService {
 
         System.out.println("Updating An account... ");
         while (true) {
-
             System.out.println("Enter account number for information updating: ");
             accountNum = scanner.nextLine();
 
@@ -164,10 +183,10 @@ public class Administrator implements IUserService {
             ResultSet accountMatch = preparedLoginMatch.executeQuery();
 
             if (accountMatch.next()) {
-                System.out.println("Account Found");
+                System.out.println("\nAccount Found");
                 break;
             } else {
-                System.out.println("Account not found");
+                System.err.println("\nAccount not found");
             }
         }
 
@@ -184,14 +203,14 @@ public class Administrator implements IUserService {
 
 
             if (!updatedStatus.equalsIgnoreCase("ACTIVE") && !updatedStatus.equalsIgnoreCase("DISABLED")) {
-                System.out.println("Invalid Account Status");
+                System.err.println("Invalid Account Status\n");
             } else if (!updatedPin.matches("\\d{5}")) {
-                System.out.println("Invalid pin");
+                System.err.println("Invalid pin\n");
                 //prevent the possibility of login being empty
             } else if (checkLoginExists(updatedLogin)){
-                System.out.println("Account already exists!");
+                System.err.println("Account already exists!\n");
             } else {
-                break;
+                break; //everything works
             }
         }
         /* For simplicity, make sure the input cannot be empty, if so retry */
@@ -205,9 +224,10 @@ public class Administrator implements IUserService {
         int result = preparedUpdateStatement.executeUpdate();
         if (result == 1) {
             System.out.println("Account Successfully Updated -- Account ID: " + updatedHolder);
-            showUserActions();
+        } else {
+            System.err.println("Account Updated Failed\n");
         }
-
+        showUserActions();
     }
 
     private void searchForAccount() throws SQLException {
@@ -215,6 +235,12 @@ public class Administrator implements IUserService {
         String accountNum;
         System.out.println("Enter account number: ");
         accountNum = scanner.nextLine();
+        try {
+            Integer.parseInt(accountNum);
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid Account Number, Please pick another action... \n");
+            showUserActions();
+        }
 
         String accMatchQuery = " SELECT * FROM ACCOUNTS WHERE account_id = ?";
         PreparedStatement preparedLoginMatch = connection.prepareStatement(accMatchQuery);
@@ -231,7 +257,7 @@ public class Administrator implements IUserService {
             System.out.println();
             showUserActions();
         } else {
-            System.out.println("Account not found");
+            System.err.println("Account not found\n");
             showUserActions();
         }
     }
