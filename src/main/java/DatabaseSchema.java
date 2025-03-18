@@ -1,7 +1,7 @@
 import java.sql.*;
 
 public class DatabaseSchema {
-    public static void createTable(){
+    public static void createTable(Connection dbConnection){
         String tableSchema = "CREATE TABLE IF NOT EXISTS accounts ("
                 + "account_id INTEGER PRIMARY KEY AUTO_INCREMENT, "
                 + "holder VARCHAR(50) NOT NULL, "
@@ -12,8 +12,7 @@ public class DatabaseSchema {
                 + "account_type ENUM('ADMIN', 'CUSTOMER') NOT NULL DEFAULT 'CUSTOMER'"
                 + " ); ";
         try {
-            Connection connection = MySQLSource.getConnection();
-            Statement statement = connection.createStatement();
+            Statement statement = dbConnection.createStatement();
             statement.executeUpdate(tableSchema);
             System.out.println("Accounts Table created");
         }catch ( Exception e ){
