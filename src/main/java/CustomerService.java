@@ -12,11 +12,11 @@ public class CustomerService implements IUserService {
     }
 
     public void showUserActions() throws SQLException {
-        System.out.println("Welcome to Customer Menu");
+        System.out.println("\nWelcome to Customer Menu");
         System.out.println("1. Withdraw Currency");
         System.out.println("2. Deposit Currency");
         System.out.println("3. Display Balance");
-        System.out.println("4. Exit");
+        System.out.println("4. Exit\n");
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter your choice: ");
@@ -39,27 +39,28 @@ public class CustomerService implements IUserService {
     }
 
     private void withdraw() throws SQLException {
-        /*
-        Scanner to get the withdraw number
-        Checks: make sure valid integer and that it is above the curtrent balance
-        Then modifty the calculatyed valye by updating the value in the DB
-         */
-        double withdrawAmount;
-        /*
-        Make sure to check what happens if faulty input multiple times
-         */
-        boolean error = false;
+
+        String withdrawInput;
+        double withdrawAmount = 0;
+        boolean error;
         do {
             Scanner scanner = new Scanner(System.in);
             System.out.println("Enter amount to withdraw: ");
-            withdrawAmount = scanner.nextDouble();
-            if (withdrawAmount < 0) {
-                System.out.println("Invalid Amount. Amount to Withdraw must be greater than 0.");
-                error = true;
-                continue;
-            }
-            if (customer.getBalance() < withdrawAmount) {
-                System.out.println("Insufficient Balance");
+            withdrawInput = scanner.nextLine();
+            try{
+                withdrawAmount = Double.parseDouble(withdrawInput);
+                if (withdrawAmount < 0) {
+                    System.err.println("Invalid Amount. Amount to Withdraw must be greater than 0.\n");
+                    error = true;
+                }
+                else if (customer.getBalance() < withdrawAmount) {
+                    System.err.println("Insufficient Balance\n");
+                    error = true;
+                } else {
+                    error = false;
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid Input, Please Retry.\n");
                 error = true;
             }
         } while (error);
@@ -69,20 +70,29 @@ public class CustomerService implements IUserService {
             printServiceDetails("Withdrawn", withdrawAmount, newBalance);
             showUserActions();
         } else {
-            System.out.println("Update Database Balance Failed");
+            System.err.println("Update Database Balance Failed\n");
+            showUserActions();
         }
-        showUserActions();
     }
 
     private void deposit() throws SQLException {
-        double depositAmount;
-        boolean error = false;
+        String depositInput;
+        double depositAmount = 0;
+        boolean error;
         do {
             Scanner scanner = new Scanner(System.in);
-            System.out.println("Enter amount to withdraw: ");
-            depositAmount = scanner.nextDouble();
-            if (depositAmount <= 0) {
-                System.out.println("Invalid Amount. Amount to Deposit must be greater than 0.");
+            System.out.println("Enter amount to Deposit: ");
+            depositInput = scanner.nextLine();
+            try{
+                depositAmount = Double.parseDouble(depositInput);
+                if (depositAmount <= 0) {
+                    System.out.println("Invalid Amount. Amount to Deposit must be greater than 0.\n");
+                    error = true;
+                } else {
+                    error = false;
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid Input, Please Retry.\n");
                 error = true;
             }
         } while (error);
@@ -92,10 +102,9 @@ public class CustomerService implements IUserService {
             printServiceDetails("Deposited", depositAmount, newBalance);
             showUserActions();
         } else {
-            System.out.println("Update Database Balance Failed");
-
+            System.err.println("Update Database Balance Failed\n");
+            showUserActions();
         }
-        showUserActions();
     }
 
     private void displayBalance() throws SQLException {
@@ -115,6 +124,5 @@ public class CustomerService implements IUserService {
             System.out.println(serviceType + ": " + serviceAmount);
         }
         System.out.println("Balance: " + newBalance);
-        System.out.println();
     }
 }

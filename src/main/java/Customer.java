@@ -12,7 +12,7 @@ import java.sql.SQLException;
 public class Customer {
     private final Connection connection;
     private final int accountID;
-    private final double balance;
+    private double balance;
 
     public Customer(int accountID, double balance, Connection connection) {
         this.accountID = accountID;
@@ -27,6 +27,9 @@ public class Customer {
     public double getBalance() {
         return balance;
     }
+    public void setBalance (double balance) {
+        this.balance = balance;
+    }
 
     public boolean updateBalance(double balance) {
         String updateBalance = "UPDATE accounts SET balance = ? WHERE account_id = ?";
@@ -36,6 +39,7 @@ public class Customer {
             preparedStatement.setInt(2, accountID);
             int result = preparedStatement.executeUpdate();
             if (result == 1) {
+                setBalance(balance);
                 return true;
             }
         } catch (SQLException e) {

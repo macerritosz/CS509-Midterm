@@ -1,8 +1,4 @@
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
-import org.checkerframework.checker.units.qual.A;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,11 +14,6 @@ public class ATMapp {
         this.databaseConnection = databaseConnection;
         this.userServiceBuilder = userServiceBuilder;
     }
-    /*
-        Default Admin and Customer Accounts:
-        Admin: John123 12345
-        Customer: Max123 12345
-     */
 
     /*Tightly Coupled
      try (Connection conn = MySQLSource.getConnection()){
@@ -58,11 +49,6 @@ public class ATMapp {
             preparedUserQuery.setString(2, pin);
             ResultSet loginResult = preparedUserQuery.executeQuery();
 
-            /* Puts cursor to the first result and checks it, if it doesnt exist, no matched login */
-            /* Tightly Coupled
-             @new Administrator(conn);
-             @new CustomerService
-             */
             if(!loginResult.next()) {
                 System.out.println("Invalid Login");
                 return null;
