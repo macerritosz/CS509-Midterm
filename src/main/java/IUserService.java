@@ -1,6 +1,5 @@
 import java.sql.SQLException;
 
-public interface IUserType {
-
+public interface IUserService {
     void showUserActions() throws SQLException;
 }

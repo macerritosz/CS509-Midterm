@@ -1,3 +1,8 @@
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import org.checkerframework.checker.units.qual.A;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -5,19 +10,30 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public class ATMapp {
-    public static void main(String[] args) {
-        ATMapp app = new ATMapp();
-        app.startATM();
+    private final DatabaseConnection databaseConnection;
+    private final IUserServiceBuilder userServiceBuilder;
+
+    @Inject
+    public ATMapp (DatabaseConnection databaseConnection, IUserServiceBuilder userServiceBuilder ) {
+        this.databaseConnection = databaseConnection;
+        this.userServiceBuilder = userServiceBuilder;
     }
     /*
         Default Admin and Customer Accounts:
         Admin: John123 12345
         Customer: Max123 12345
      */
-    private void startATM() {
-        try (Connection conn = MySQLSource.getConnection()){
+
+    /*Tightly Coupled
+     try (Connection conn = MySQLSource.getConnection()){
             DatabaseSchema.createTable();
-            IUserType account = promptLogin(conn);
+            IUserService account = promptLogin(conn);
+    */
+
+    public void startATM() {
+        try (Connection conn = databaseConnection.getConnection()){
+            DatabaseSchema.createTable();
+            IUserService account = promptLogin(conn);
             if(account != null) {
                 account.showUserActions();
             }
@@ -26,7 +42,7 @@ public class ATMapp {
         }
     }
 
-    private IUserType promptLogin(Connection conn) throws SQLException {
+    private IUserService promptLogin(Connection conn) throws SQLException {
         Scanner auth = new Scanner(System.in);
 
         System.out.println("Please Sign in");
@@ -43,28 +59,20 @@ public class ATMapp {
             ResultSet loginResult = preparedUserQuery.executeQuery();
 
             /* Puts cursor to the first result and checks it, if it doesnt exist, no matched login */
+            /* Tightly Coupled
+             @new Administrator(conn);
+             @new CustomerService
+             */
             if(!loginResult.next()) {
                 System.out.println("Invalid Login");
+                return null;
             } else {
-                String Account_type = loginResult.getString("Account_Type");
-                System.out.println("Account Type: " + Account_type);
-                if(Account_type.equals("ADMIN")) {
-                    System.out.println("Admin Login Successful");
-                    return new Administrator(conn);
-                } else {
-                    System.out.println("Customer Login Successful");
-                    return createCustomerFromResultSet(loginResult, conn);
-                }
+                String account_type = loginResult.getString("Account_Type");
+                return userServiceBuilder.createUserService(conn, account_type, loginResult );
             }
         } catch (SQLException e) {
             System.out.println("Login Query Error: " + e.getMessage());
         }
         return null;
-    }
-
-    public Customer createCustomerFromResultSet(ResultSet resultSet, Connection conn) throws SQLException {
-        int accountID = resultSet.getInt("account_ID");
-        int balance = resultSet.getInt("balance");
-        return new Customer(accountID, balance, conn);
     }
 }
