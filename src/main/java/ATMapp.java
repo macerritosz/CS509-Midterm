@@ -23,7 +23,7 @@ public class ATMapp {
 
     public void startATM() {
         try (Connection conn = databaseConnection.getConnection()){
-            DatabaseSchema.createTable();
+            DatabaseSchema.createTable(conn);
             IUserService account = promptLogin(conn);
             if(account != null) {
                 account.showUserActions();
