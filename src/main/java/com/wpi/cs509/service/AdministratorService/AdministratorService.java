@@ -4,7 +4,7 @@ import com.wpi.cs509.service.IUserService;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Scanner;
+
 
 /**
  * AdministratorService provides an interface for administrators to manage
@@ -13,14 +13,18 @@ import java.util.Scanner;
  */
 public class AdministratorService implements IUserService {
     private final Administrator admin;
+    private final AdminUtils utils;
+    private final AdminUI ui;
 
     /**
      * Constructs an AdministratorService with the provided Administrator object.
      *
      * @param admin the Administrator instance used to perform administrative operations
      */
-    public AdministratorService(Administrator admin) {
+    public AdministratorService(Administrator admin, AdminUtils utils, AdminUI ui) {
         this.admin = admin;
+        this.utils = utils;
+        this.ui = ui;
     }
 
     /**
@@ -29,34 +33,31 @@ public class AdministratorService implements IUserService {
      * @throws SQLException if any functions called encounter a database error
      */
     public void showUserActions() throws SQLException {
-        System.out.println("Welcome to Administrator Menu");
-        System.out.println("1. Create New Account");
-        System.out.println("2. Delete Existing Account");
-        System.out.println("3. Update Account Information");
-        System.out.println("4. Search For Account");
-        System.out.println("5. Exit");
+        ui.showAdminActions();
 
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter your choice: ");
-        int choice = scanner.nextInt();
+        String choice = ui.getInput("Enter your choice: ");
+
         switch (choice) {
-            case 1:
+            case "1":
                 createNewAccount();
                 break;
-            case 2:
+            case "2":
                 deleteExistingAccount();
                 break;
-            case 3:
+            case "3":
                 updateExistingAccount();
                 break;
-            case 4:
+            case "4":
                 searchForAccount();
                 break;
             default:
-                System.out.println("Exiting...");
+                ui.displayMessage("Exiting...");
                 System.exit(0);
                 break;
         }
+    }
+    public boolean checkData (String login, String pin , String balance, String status) throws SQLException {
+        return !admin.checkLoginExists(login) && utils.checkBalance(balance) && utils.checkStatus(status) && utils.checkPIN(pin);
     }
 
     private void createNewAccount() throws SQLException {
@@ -65,188 +66,137 @@ public class AdministratorService implements IUserService {
         String name = "";
         String balance = "";
         String status = "";
-        Scanner scanner = new Scanner(System.in);
-        boolean error = false;
 
-        System.out.println("Creating new account... ");
         do {
-            System.out.println("Enter new account Login: ");
-            login = scanner.nextLine();
-            if (admin.checkLoginExists(login)) {
-                System.err.println("Account already exists! \n");
-                error = true;
-                continue;
-            }
-
-            System.out.println("Enter a 5 digit account PIN: ");
-            pin = scanner.nextLine();
-            if (!pin.matches("\\d{5}")) {
-                System.err.println("Invalid pin \n");
-                error = true;
-                continue;
-            }
-
-            System.out.println("Enter new account Holder's Name: ");
-            name = scanner.nextLine();
-
-            System.out.println("Enter new account Starting Balance: ");
-            balance = scanner.nextLine();
-            if (Double.parseDouble(balance) < 0) {
-                System.err.println("Initial Balance cannot be negative \n");
-                error = true;
-                continue;
-            }
-
-            System.out.println("Enter new account Status: ");
-            status = scanner.nextLine();
-            if (!status.equalsIgnoreCase("ACTIVE") && !status.equalsIgnoreCase("DISABLED")) {
-                System.err.println("Invalid Account Status \n");
-                error = true;
-            } else {
-                status = status.toUpperCase();
-            }
-
-        } while (error);
+            ui.displayMessage("Creating new account... ");
+            login = ui.getInput("Enter new account Login: ");
+            pin = ui.getInput("Enter a 5 digit account PIN: ");
+            name = ui.getInput("Enter new account Holder's Name: ");
+            balance = ui.getInput("Enter new account Starting Balance: ");
+            status = ui.getInput("Enter new account Status: ");
+        } while (checkData(login, pin , balance, status));
 
         try {
             int accID = admin.pushNewAccount(login, pin, name, balance, status);
-            System.out.println("Account Successfully Created -- Account ID: " + accID);
+            ui.displayMessage("Account Successfully Created -- Account ID: " + accID);
         } catch (SQLException e) {
-            System.err.println("Error while creating new account \n");
+            ui.displayError("Error while creating new account \n");
         }
-        showUserActions();
+
+        ui.showAdminActions();
     }
 
     private void deleteExistingAccount() throws SQLException {
-        String accountNum;
-        String matchNum;
-        Scanner scanner = new Scanner(System.in);
+        String accountNum = "";
+        String matchNum = "";
+
         boolean error;
         do {
-            System.out.println("Deleting An account... ");
-            System.out.println("Enter account number for account to be deleted: ");
-            accountNum = scanner.nextLine();
-            try {
-                Integer.parseInt(accountNum);
-                error = false;
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid account number \n");
-                error = true;
-            }
+            ui.displayMessage("Deleting An account... ");
+            accountNum = ui.getInput("Enter account number for account to be deleted: ");
+            error = utils.checkAccNumber(accountNum);
         } while (error);
         //check not empty and only numeric
         ResultSet accountMatch = admin.checkAccountExists("holder", accountNum);
 
         if (accountMatch.next()) {
             String holder = accountMatch.getString("holder");
-            System.out.println("You wish to delete the account held by " + holder + ". Please re-enter the account Number: ");
-            matchNum = scanner.nextLine();
-            try {
-                Integer.parseInt(matchNum);
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid account number \n");
-                showUserActions();
+            matchNum = ui.getInput("You wish to delete the account held by " + holder + ". Please re-enter the account Number: ");
+            if(!utils.checkAccNumber(matchNum)) {
+                ui.showAdminActions();
             }
             if (accountNum.equals(matchNum)) {
 
                 boolean result = admin.deleteExistingAccount(matchNum);
                 if (result) {
-                    System.out.println("Account Successfully Deleted -- Account ID: " + accountNum + "\n");
+                    ui.displayMessage("Account Successfully Deleted -- Account ID: " + accountNum + "\n");
                 } else {
-                    System.out.println("Account Deletion Failed\n");
+                    ui.displayError("Account Deletion Failed\n");
                 }
-                showUserActions();
+                ui.showAdminActions();
             } else {
-                System.err.println("Numbers Did Not Match, Please pick another action... \n");
-                showUserActions();
+                ui.displayError("Numbers Did Not Match, Please pick another action... \n");
+                ui.showAdminActions();
             }
         } else {
-            System.err.println("Account Number is Not Assigned \n");
-            showUserActions();
+            ui.displayError("Account Number is Not Assigned \n");
+            ui.showAdminActions();
         }
     }
 
     private void updateExistingAccount() throws SQLException {
-        String accountNum;
-        String updatedHolder;
-        String updatedStatus;
-        String updatedLogin;
-        String updatedPin;
-        Scanner scanner = new Scanner(System.in);
+        String accountNum = "";
+        boolean error;
 
-        System.out.println("Updating An account... ");
-        while (true) {
-            System.out.println("Enter account number for information updating: ");
-            accountNum = scanner.nextLine();
-            ResultSet accountMatch = admin.checkAccountExists("*", accountNum);
+        do {
+            ui.displayMessage("Updating an account...");
+            accountNum = ui.getInput("Enter account number for information updating: ");
+            error = utils.checkAccNumber(accountNum);
+        } while (error);
 
-            if (accountMatch.next()) {
-                System.out.println("\nAccount Found");
-                break;
-            } else {
-                System.err.println("\nAccount not found");
-            }
+        ResultSet accountMatch = admin.checkAccountExists("*", accountNum);
+        if (!accountMatch.next()) {
+            ui.displayError("Account not found");
+            ui.showAdminActions();
+            return;
         }
 
-        while (true) {
-            System.out.println("Enter the updated values for the following fields");
-            System.out.println("Updated Holder: ");
-            updatedHolder = scanner.nextLine();
-            System.out.println("Updated Status: ");
-            updatedStatus = scanner.nextLine();
-            System.out.println("Updated Login: ");
-            updatedLogin = scanner.nextLine();
-            System.out.println("Updated Pin: ");
-            updatedPin = scanner.nextLine();
+        ui.displayMessage("\nAccount Found");
 
+        String updatedHolder = ui.getInput("Updated Holder: ");
+        String updatedStatus = ui.getInput("Updated Status (ACTIVE/DISABLED): ");
+        String updatedLogin = ui.getInput("Updated Login: ");
+        String updatedPin = ui.getInput("Updated 5-digit Pin: ");
 
-            if (!updatedStatus.equalsIgnoreCase("ACTIVE") && !updatedStatus.equalsIgnoreCase("DISABLED")) {
-                System.err.println("Invalid Account Status\n");
-            } else if (!updatedPin.matches("\\d{5}")) {
-                System.err.println("Invalid pin\n");
-                //prevent the possibility of login being empty
-            } else if (admin.checkLoginExists(updatedLogin)){
-                System.err.println("Account already exists!\n");
-            } else {
-                break; //everything works
-            }
+        if (!updatedStatus.equalsIgnoreCase("ACTIVE") && !updatedStatus.equalsIgnoreCase("DISABLED")) {
+            ui.displayError("Invalid account status.");
+            ui.showAdminActions();
+            return;
         }
-        /* For simplicity, make sure the input cannot be empty, if so retry */
+
+        if (!updatedPin.matches("\\d{5}")) {
+            ui.displayError("Invalid pin (must be 5 digits).");
+            ui.showAdminActions();
+            return;
+        }
+
+        if (admin.checkLoginExists(updatedLogin)) {
+            ui.displayError("Login already exists!");
+            ui.showAdminActions();
+            return;
+        }
+
         boolean result = admin.updateExistingAccount(updatedHolder, updatedStatus, updatedLogin, updatedPin, accountNum);
         if (result) {
-            System.out.println("Account Successfully Updated For Holder: " + updatedHolder);
+            ui.displayMessage("Account successfully updated for holder: " + updatedHolder);
         } else {
-            System.err.println("Account Update Failed\n");
+            ui.displayError("Account update failed.");
         }
-        showUserActions();
+
+        ui.showAdminActions();
     }
 
     private void searchForAccount() throws SQLException {
-        Scanner scanner = new Scanner(System.in);
-        String accountNum;
-        System.out.println("Enter account number: ");
-        accountNum = scanner.nextLine();
-        try {
-            Integer.parseInt(accountNum);
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid Account Number, Please pick another action... \n");
-            showUserActions();
+        String accountNum = ui.getInput("Enter account number: ");
+        if (!accountNum.matches("\\d+")) {
+            ui.displayError("Invalid account number (must be numeric).");
+            ui.showAdminActions();
+            return;
         }
-        try (ResultSet accountMatch = admin.checkAccountExists("*", accountNum)) {
 
+        try (ResultSet accountMatch = admin.checkAccountExists("*", accountNum)) {
             if (accountMatch.next()) {
-                System.out.println("\nFound Account with ID: " + accountNum);
-                System.out.println("Holder: " + accountMatch.getString("HOLDER"));
-                System.out.println("Balance: " + accountMatch.getString("balance"));
-                System.out.println("Status: " + accountMatch.getString("status"));
-                System.out.println("Login: " + accountMatch.getString("login"));
-                System.out.println("PIN: " + accountMatch.getString("pin"));
-                System.out.println();
-                showUserActions();
+                ui.displayMessage("\nFound Account with ID: " + accountNum);
+                ui.displayMessage("Holder: " + accountMatch.getString("holder"));
+                ui.displayMessage("Balance: " + accountMatch.getString("balance"));
+                ui.displayMessage("Status: " + accountMatch.getString("status"));
+                ui.displayMessage("Login: " + accountMatch.getString("login"));
+                ui.displayMessage("PIN: " + accountMatch.getString("pin"));
             } else {
-                System.err.println("Account not found\n");
-                showUserActions();
+                ui.displayError("Account not found.");
             }
         }
+
+        ui.showAdminActions();
     }
 }
