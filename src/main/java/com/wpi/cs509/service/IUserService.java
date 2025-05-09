@@ -1,6 +1,5 @@
 package com.wpi.cs509.service;
 
-import java.sql.SQLException;
 
 /**
  * IUserService defines a common interface for user services
@@ -8,12 +7,9 @@ import java.sql.SQLException;
  * It provides the ability to present user-specific actions.
  */
 public interface IUserService {
-
     /**
-     * Displays the available actions or menu options
-     * for the specific user type (administrator, customer, etc.).
-     *
-     * @throws SQLException if a database error occurs during the operation
+     * @return a string with a hardcoded type
      */
-    void showUserActions() throws SQLException;
+     String getType();
+
 }

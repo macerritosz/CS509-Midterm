@@ -13,11 +13,10 @@ public interface IUserServiceBuilder {
     /**
      * Creates IUserService object of type Admin or Customer to preform operations with
      *
-     * @param conn A connection object with active connection to database
      * @param accountType A string pertaining to account type
      * @param result A result set containing logged-in user's database information
      * @return IUserService that can be AdministratorService or CustomerService
      * @throws SQLException if database error occurs when reading result
      */
-     IUserService createUserService(Connection conn, String accountType, ResultSet result) throws SQLException;
+     IUserService createUserService(String accountType, ResultSet result) throws SQLException;
 }

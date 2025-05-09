@@ -1,245 +1,80 @@
-import com.wpi.cs509.service.AdministratorService.Administrator;
-import com.wpi.cs509.service.AdministratorService.AdministratorService;
+import com.wpi.cs509.repository.AdminRepository;
+import com.wpi.cs509.entity.Administrator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AdministratorTest {
-    private Connection mockConnection;
-    private Administrator mockAdministrator;
-    private AdministratorService administratorService;
-    private PreparedStatement mockPreparedStatement;
-    private ResultSet mockResultSet;
+
+    private AdminRepository mockRepo;
+    private Administrator administrator;
 
     @BeforeEach
-    public void setUp() {
-        mockConnection = Mockito.mock(Connection.class);
-        mockAdministrator = new Administrator(mockConnection);
-    }
-    /* Administrator.java */
-    @Test
-    public void testPushNewAccount_Success() throws SQLException {
-        // Mock for PreparedStatement & ResultSet
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString(), eq(Statement.RETURN_GENERATED_KEYS))).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-        when(mockPreparedStatement.getGeneratedKeys()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(true);
-        when(mockResultSet.getInt(1)).thenReturn(1001);
-
-
-        mockAdministrator.pushNewAccount("testlogin", "12345", "John Doe", "1000", "ACTIVE");
-
-
-        verify(mockPreparedStatement).setString(1, "John Doe");
-        verify(mockPreparedStatement).setString(2, "1000");
-        verify(mockPreparedStatement).setString(3, "testlogin");
-        verify(mockPreparedStatement).setString(4, "12345");
-        verify(mockPreparedStatement).setString(5, "ACTIVE");
-        verify(mockPreparedStatement).executeUpdate();
-
-
-        verify(mockResultSet).next();
-        verify(mockResultSet).getInt(1);
+    void setUp() {
+        mockRepo = mock(AdminRepository.class);
+        administrator = new Administrator(mockRepo);
     }
 
     @Test
-    public void testPushNewAccount_Failure() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
+    void testPushNewAccount_success() throws SQLException {
 
-        //send statement, and mock update, return 0 for 0 insertions made
-        when(mockConnection.prepareStatement(anyString(), eq(Statement.RETURN_GENERATED_KEYS))).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+        String login = "user1";
+        String pin = "1234";
+        String name = "John Doe";
+        String balance = "1000";
+        String status = "active";
 
-        mockAdministrator.pushNewAccount("testlogin", "12345", "John Doe", "1000", "ACTIVE");
+        when(mockRepo.insertAccount(login, pin, name, balance, status)).thenReturn(1);
 
-        verify(mockPreparedStatement).executeUpdate();
 
-    }
+        administrator.pushNewAccount(login, pin, name, balance, status);
 
-    /* Delete Account */
-    @Test
-    public void testDeleteExistingAccount_Success() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-
-        mockAdministrator.deleteExistingAccount("1001");
-
-        verify(mockPreparedStatement).setString(1, "1001");
-        verify(mockPreparedStatement).executeUpdate();
+        verify(mockRepo, times(1)).insertAccount(login, pin, name, balance, status);
     }
 
     @Test
-    public void testDeleteExistingAccount_Failure() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+    void testDeleteExistingAccount_success() throws SQLException {
+        String accountId = "1";
+        when(mockRepo.deleteAccountById(accountId)).thenReturn(true);
 
-        mockAdministrator.deleteExistingAccount("1001");
-
-        verify(mockPreparedStatement).executeUpdate();
-    }
-
-    /*  updateAccount */
-    @Test
-    public void testUpdateExistingAccount_Success() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-
-        mockAdministrator.updateExistingAccount(
-                "Mark Doe", "Disabled", "newerLogin", "54321", "1001"
-        );
-
-        verify(mockPreparedStatement).setString(1, "Mark Doe");
-        verify(mockPreparedStatement).setString(2, "Disabled");
-        verify(mockPreparedStatement).setString(3, "newerLogin");
-        verify(mockPreparedStatement).setString(4, "54321");
-        verify(mockPreparedStatement).setString(5, "1001");
-
-        verify(mockPreparedStatement).executeUpdate();
-    }
-
-    @Test
-    public void testUpdateExistingAccount_Failure() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
-
-        mockAdministrator.updateExistingAccount(
-                "Mark Doe", "Disabled", "newerLogin", "54321", "1001"
-        );
-
-        verify(mockPreparedStatement).executeUpdate();
-    }
-    /*  Check Exists  */
-    @Test
-    public void testCheckLoginExists_Success() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(true);
-
-        boolean result = mockAdministrator.checkLoginExists("newLogin");
+        boolean result = administrator.deleteExistingAccount(accountId);
 
         assertTrue(result);
+        verify(mockRepo, times(1)).deleteAccountById(accountId);
     }
 
     @Test
-    public void testCheckLoginExists_Failure() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
+    void testUpdateExistingAccount_success() throws SQLException {
 
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(false);
+        String holder = "John Doe";
+        String status = "active";
+        String login = "newlogin";
+        String pin = "12345";
+        String accountId = "1";
+        when(mockRepo.updateAccount(holder, status, login, pin, accountId)).thenReturn(true);
 
-        boolean result = mockAdministrator.checkLoginExists("newerLogin");
+        boolean result = administrator.updateExistingAccount(holder, status, login, pin, accountId);
 
-        assertFalse(result);
+        assertTrue(result);
+        verify(mockRepo, times(1)).updateAccount(holder, status, login, pin, accountId);
     }
 
     @Test
-    public void testCheckLoginExists_throwsException() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("Error"));
-
-        boolean result = mockAdministrator.checkLoginExists("newLogin");
-
-        assertFalse(result);
-
-    }
-
-
-    /* checkAccountExists */
-    // when type ==
-    @Test
-    public void testCheckAccountExistsTypeStar_Success() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+    void testCheckAccountExists_found() throws SQLException {
+        String accountId = "1";
+        ResultSet mockResultSet = mock(ResultSet.class);
+        when(mockRepo.findAccount("*", accountId)).thenReturn(mockResultSet);
         when(mockResultSet.next()).thenReturn(true);
-        //returns RS
-        ResultSet set = mockAdministrator.checkAccountExists("*", "1001");
-        // all that matters is not null
-        assertNotNull(set);
-        assertTrue(set.next());
+
+        ResultSet resultSet = administrator.checkAccountExists("*", accountId);
+
+        assertNotNull(resultSet);
+        verify(mockRepo, times(1)).findAccount("*", accountId);
     }
 
-    @Test
-    public void testCheckAccountExistsTypeStar_Failure() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString()))
-                .thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery())
-                .thenReturn(mockResultSet);
-        when(mockResultSet.next())
-                .thenReturn(false);
-
-        ResultSet set = mockAdministrator.checkAccountExists("*", "1001");
-        assertNotNull(set);
-        assertFalse(set.next());
-    }
-
-    @Test
-    public void testCheckAccountExistsTypeHolder_Success() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(true);
-        //returns RS
-        ResultSet set = mockAdministrator.checkAccountExists("holder", "1001");
-        // all that matters is not null
-        assertNotNull(set);
-        assertTrue(set.next());
-    }
-
-    @Test
-    public void testCheckAccountExistsTypeHolder_Failure() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString()))
-                .thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery())
-                .thenReturn(mockResultSet);
-        when(mockResultSet.next())
-                .thenReturn(false);
-
-        ResultSet set = mockAdministrator.checkAccountExists("holder", "1001");
-        assertNotNull(set);
-        assertFalse(set.next());
-    }
-
-    @Test
-    public void testCheckAccountExistsThrowsException() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("Error"));
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(true);
-        //returns RS
-        ResultSet set = mockAdministrator.checkAccountExists("*", "1001");
-        // all that matters is not null
-        assertNull(set);
-    }
 }

@@ -1,8 +1,7 @@
-package com.wpi.cs509.service.CustomerService;
+package com.wpi.cs509.entity;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import com.wpi.cs509.repository.CustomerRepository;
+
 import java.sql.SQLException;
 
 /**
@@ -10,21 +9,21 @@ import java.sql.SQLException;
  * including updating table balance, and fetching updated values
  */
 public class Customer {
-    private final Connection connection;
+    private final CustomerRepository repository;
     private final int accountID;
     private double balance;
 
     /**
-     * Constructs a Customer with given ID, balance, and connection
+     * Constructs a Customer with given ID, balance, and repository
      *
      * @param accountID unique account ID for customer
      * @param balance the initial balance of the customer
-     * @param connection the active database connection
+     * @param repository the CustomerRepository used for database ops
      */
-    public Customer(int accountID, double balance, Connection connection) {
+    public Customer(int accountID, double balance, CustomerRepository repository) {
         this.accountID = accountID;
         this.balance = balance;
-        this.connection = connection;
+        this.repository = repository;
     }
 
     /**
@@ -61,13 +60,9 @@ public class Customer {
      * @return a boolean to indicate if update executed
      */
     public boolean updateBalance(double balance) {
-        String updateBalance = "UPDATE accounts SET balance = ? WHERE account_id = ?";
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(updateBalance);
-            preparedStatement.setDouble(1, balance);
-            preparedStatement.setInt(2, accountID);
-            int result = preparedStatement.executeUpdate();
-            if (result == 1) {
+            boolean result = repository.updateBalance(accountID, balance);
+            if (result) {
                 setBalance(balance);
                 return true;
             }
@@ -83,14 +78,8 @@ public class Customer {
      * @return a double corresponding to current balance in customer's entry in accounts table
      */
     public double getDataBaseBalance() {
-        String balanceQuery = " SELECT * FROM ACCOUNTS WHERE account_id = ?";
         try {
-            PreparedStatement preparedLoginMatch = connection.prepareStatement(balanceQuery);
-            preparedLoginMatch.setInt(1, accountID);
-            ResultSet balanceResult = preparedLoginMatch.executeQuery();
-            if (balanceResult.next()) {
-                return balanceResult.getDouble("balance");
-            }
+            return repository.getBalance(accountID);
         } catch (SQLException e) {
             e.printStackTrace();
         }
