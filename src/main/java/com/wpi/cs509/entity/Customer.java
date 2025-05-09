@@ -14,11 +14,11 @@ public class Customer {
     private double balance;
 
     /**
-     * Constructs a Customer with given ID, balance, and connection
+     * Constructs a Customer with given ID, balance, and repository
      *
      * @param accountID unique account ID for customer
      * @param balance the initial balance of the customer
-     * @param repository the active database connection
+     * @param repository the CustomerRepository used for database ops
      */
     public Customer(int accountID, double balance, CustomerRepository repository) {
         this.accountID = accountID;

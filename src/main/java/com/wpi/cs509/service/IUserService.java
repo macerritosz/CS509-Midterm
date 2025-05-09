@@ -7,6 +7,9 @@ package com.wpi.cs509.service;
  * It provides the ability to present user-specific actions.
  */
 public interface IUserService {
+    /**
+     * @return a string with a hardcoded type
+     */
      String getType();
 
 }

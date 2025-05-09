@@ -13,14 +13,13 @@ import java.sql.SQLException;
 
 /**
  * ServiceBuilder is responsible for creating IUserService objects for either an Administrator or Customer
- *
  * data from the database to determine the appropriate service to be returned.
  */
 public class ServiceBuilder implements IUserServiceBuilder {
     private final AdminRepository adminRepository;
     private final CustomerRepository customerRepository;
     /**
-     * Default constructor for ServiceBuilder.
+     * Constructor for ServiceBuilder injected with Admin and Customer Repositories
      */
     @Inject
     public ServiceBuilder(AdminRepository adminRepository, CustomerRepository customerRepository) {

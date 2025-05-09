@@ -2,7 +2,6 @@ package com.wpi.cs509.service;
 
 import com.wpi.cs509.entity.Customer;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -15,7 +14,7 @@ public class CustomerService implements IUserService {
     private final Customer customer;
 
     /**
-     * A function to allow Customer to withdraw, deposit, or display to account
+     * A constructor for a CustomerService using a Customer object to preform service oprations
      *
      * @param customer the Customer instance to preform operations with
      */
@@ -24,13 +23,11 @@ public class CustomerService implements IUserService {
     }
 
     /**
-     * A function to allow Customer to Withdraw, Deposit, or display balance
+     * A function to execute the withdrawal operation
      *
-     * @throws SQLException if operations encounter a database error
+     * @param amount a double to withdraw
      */
-
-    /*Throw the error text up */
-    public boolean withdraw(double amount) {
+    public void withdraw(double amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount to withdraw must be greater than 0.");
         }
@@ -40,24 +37,30 @@ public class CustomerService implements IUserService {
         double newBalance = customer.getBalance() - amount;
         if (customer.updateBalance(newBalance)) {
             printServiceDetails("Withdrawn", amount, newBalance);
-            return true;
         }
-        return false;
     }
 
-    public boolean deposit(double amount) {
+    /**
+     * A function to execute the deposit operation
+     *
+     * @param amount a double to deposit
+     */
+    public void deposit(double amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount to deposit must be greater than 0.");
         }
         double newBalance = customer.getBalance() + amount;
         if (customer.updateBalance(newBalance)) {
             printServiceDetails("Deposited", amount, newBalance);
-            return true;
         }
-        return false;
     }
 
 
+    /**
+     * a function to handle printing the current balance
+     *
+     * @return a double from the database
+     */
     public double displayBalance(){
         double dbBalance = customer.getDataBaseBalance();
         printServiceDetails("Display Balance", 0, dbBalance);
@@ -77,6 +80,11 @@ public class CustomerService implements IUserService {
         System.out.println("Balance: " + newBalance);
     }
 
+    /**
+     * A function to get the service Type
+     *
+     * @return a string of the word "customer"
+     */
     @Override
     public String getType() {
         return "customer";
