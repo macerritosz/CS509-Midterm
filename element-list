@@ -1,0 +1,6 @@
+com.wpi.cs509
+com.wpi.cs509.database
+com.wpi.cs509.entity
+com.wpi.cs509.repository
+com.wpi.cs509.service
+com.wpi.cs509.ui
