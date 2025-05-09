@@ -23,16 +23,15 @@ public class Administrator {
     /**
      * Creates a new account in the database.
      *
-     * @param login    the account login username
-     * @param pin      the account PIN code
-     * @param name     the account holder's name
-     * @param balance  the initial balance
-     * @param status   the account status (active / disabled)
-     * @return the generated account ID if successful
+     * @param login   the account login username
+     * @param pin     the account PIN code
+     * @param name    the account holder's name
+     * @param balance the initial balance
+     * @param status  the account status (active / disabled)
      * @throws SQLException if a database error occurs during insertion
      */
-    public int pushNewAccount(String login, String pin, String name, String balance, String status) throws SQLException {
-        return adminRepository.insertAccount(login, pin, name, balance, status);
+    public void pushNewAccount(String login, String pin, String name, String balance, String status) throws SQLException {
+        adminRepository.insertAccount(login, pin, name, balance, status);
     }
 
     /**
@@ -59,17 +58,6 @@ public class Administrator {
      */
     public boolean updateExistingAccount(String holder, String status, String login, String pin, String accountId) throws SQLException {
         return adminRepository.updateAccount(holder, status, login, pin, accountId);
-    }
-
-    /**
-     * Checks whether a login username already exists in the database.
-     *
-     * @param login the login username to check
-     * @return true if the login exists, false otherwise
-     * @throws SQLException if a database error occurs during the check
-     */
-    public boolean checkLoginExists(String login) throws SQLException {
-        return adminRepository.doesLoginExist(login);
     }
 
     /**
