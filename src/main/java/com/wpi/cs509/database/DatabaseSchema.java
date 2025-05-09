@@ -1,6 +1,17 @@
+package com.wpi.cs509.database;
+
 import java.sql.*;
 
+/**
+ * Database Schema holds the code declaration for the accounts table to execute if it does not exist already
+ */
 public class DatabaseSchema {
+    /**
+     * Creates the 'accounts' table in the database with the specified schema.
+     * If the table already exists, no action is taken.
+     *
+     * @param dbConnection the connection object access database
+     */
     public static void createTable(Connection dbConnection){
         String tableSchema = "CREATE TABLE IF NOT EXISTS accounts ("
                 + "account_id INTEGER PRIMARY KEY AUTO_INCREMENT, "

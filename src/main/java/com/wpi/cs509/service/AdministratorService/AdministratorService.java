@@ -1,18 +1,35 @@
-import java.sql.PreparedStatement;
+package com.wpi.cs509.service.AdministratorService;
+
+import com.wpi.cs509.service.IUserService;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Scanner;
 
+/**
+ * AdministratorService provides an interface for administrators to manage
+ * accounts, including creating, deleting, updating, and searching for accounts.
+ * It implements the IUserService interface.
+ */
 public class AdministratorService implements IUserService {
     private final Administrator admin;
 
+    /**
+     * Constructs an AdministratorService with the provided Administrator object.
+     *
+     * @param admin the Administrator instance used to perform administrative operations
+     */
     public AdministratorService(Administrator admin) {
         this.admin = admin;
     }
 
+    /**
+     * A function to allow Administrator to Create, Edit, Update, and search accounts
+     *
+     * @throws SQLException if any functions called encounter a database error
+     */
     public void showUserActions() throws SQLException {
-        System.out.println("Welcome to Administrator Menu");
+        System.out.println("Welcome to service.AdministratorService.Administrator Menu");
         System.out.println("1. Create New Account");
         System.out.println("2. Delete Existing Account");
         System.out.println("3. Update Account Information");

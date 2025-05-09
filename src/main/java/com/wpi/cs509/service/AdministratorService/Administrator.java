@@ -1,14 +1,34 @@
-import java.sql.*;
-import java.util.Scanner;
+package com.wpi.cs509.service.AdministratorService;
 
+import java.sql.*;
+
+/**
+ * Administrator class provides administrative operations on the Accounts table,
+ * including creating, updating, deleting accounts, and checking account existence.
+ */
 public class Administrator {
     private final Connection connection;
 
 
+    /**
+     * Constructs an Administrator with the given database connection.
+     *
+     * @param connection the database connection to be used for executing queries
+     */
     public Administrator(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * Inserts new row into Accounts table with the following information and prints generated ID
+     *
+     * @param login user login identifier
+     * @param pin a 5 digit PIN passed as a String
+     * @param name account Holder's name
+     * @param balance initial balance of the account, representing a Double
+     * @param status current account status ACTIVE / DISABLED
+     * @throws SQLException If database execution or access error occurs
+     */
     public void pushNewAccount(String login, String pin, String name, String balance, String status) throws SQLException {
         String insertStatement = "insert into accounts (holder, balance, login, pin, status) values(?,?,?,?,?)";
 
@@ -31,6 +51,12 @@ public class Administrator {
         }
     }
 
+    /**
+     * Deletes row from Accounts table corresponding to accountNum and prints confirmation message
+     *
+     * @param accountNum an accounts unique ID as a string
+     * @throws SQLException If database execution error occurs
+     */
     public void deleteExistingAccount(String accountNum) throws SQLException {
         String deleteStatement = "DELETE FROM accounts WHERE account_id = ?";
         PreparedStatement preparedDeleteStatement = connection.prepareStatement(deleteStatement);
@@ -43,6 +69,16 @@ public class Administrator {
         }
     }
 
+    /**
+     * Updates table entry in accounts corresponding to the following passed in and prints confirmation message
+     *
+     * @param updatedHolder string for updated account holder name
+     * @param updatedStatus string for ACTIVE / DISABLED
+     * @param updatedLogin string for new login for account
+     * @param updatedPin string for new 5 digit PIN code
+     * @param accountNum  string for unique number of account to edit
+     * @throws SQLException If a database access / write error occurs
+     */
     public void updateExistingAccount(String updatedHolder, String updatedStatus, String updatedLogin, String updatedPin, String accountNum) throws SQLException {
         /* For simplicity, make sure the input cannot be empty, if so retry */
         String updateAccountInfo = "UPDATE accounts SET holder = ?, status = ?, login = ?, pin = ? WHERE account_id = ?";
@@ -60,6 +96,12 @@ public class Administrator {
         }
     }
 
+    /**
+     * A function to see if unique user login already exists in accounts table
+     *
+     * @param login a string corresponding to a user's login
+     * @return a boolean, true if it does exist in table, false otherwise
+     */
     public boolean checkLoginExists(String login) {
         try {
             String loginMatchQuery = " SELECT * FROM accounts WHERE login = ?";
@@ -73,6 +115,13 @@ public class Administrator {
         return false;
     }
 
+    /**
+     * Checks if account exists in accounts table and returns the result set containing its information
+     *
+     * @param queryType a string corresponding what values to return in result set [ * - all columns, "holder" - holder column]
+     * @param account a string for the unique account ID in table
+     * @return a ResultSet object for the found entry or null
+     */
     public ResultSet checkAccountExists(String queryType, String account) {
         try {
             String type = queryType.toLowerCase();

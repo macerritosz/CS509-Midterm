@@ -1,16 +1,34 @@
-import java.sql.Connection;
+package com.wpi.cs509.service.CustomerService;
+
+import com.wpi.cs509.service.IUserService;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
+/**
+ * CustomerService provides an interface for customers to manage
+ * withdrawals, deposits, and displaying information
+ * It implements the IUserService interface.
+ */
 public class CustomerService implements IUserService {
     private final Customer customer;
 
+    /**
+     * A function to allow Customer to withdraw, deposit, or display to account
+     *
+     * @param customer the Customer instance to preform operations with
+     */
     public CustomerService(Customer customer) {
         this.customer = customer;
     }
 
+    /**
+     * A function to allow Customer to Withdraw, Deposit, or display balance
+     *
+     * @throws SQLException if operations encounter a database error
+     */
     public void showUserActions() throws SQLException {
         System.out.println("\nWelcome to Customer Menu");
         System.out.println("1. Withdraw Currency");
