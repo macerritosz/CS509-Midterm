@@ -87,4 +87,35 @@ public class AdminRepositoryTests {
         assertNotNull(resultSet);
         verify(mockPreparedStatement, times(1)).executeQuery();
     }
+
+    @Test
+    public void testInsertAccount_ThrowsException_NoRows() throws SQLException {
+        when(mockConnection.prepareStatement(anyString(), eq(Statement.RETURN_GENERATED_KEYS))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+
+        SQLException exception = assertThrows(SQLException.class, () -> {
+            adminRepository.insertAccount("login", "pin", "name", "1000", "active");
+        });
+
+        assertEquals("Account creation failed", exception.getMessage());
+    }
+    @Test
+    public void testFindAccount_TypeHolder() throws SQLException {
+        when(mockConnection.prepareStatement(contains("SELECT holder"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+
+        ResultSet result = adminRepository.findAccount("holder", "1");
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testFindAccount_TypeAll() throws SQLException {
+        when(mockConnection.prepareStatement(contains("SELECT *"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+
+        ResultSet result = adminRepository.findAccount("*", "1");
+
+        assertNotNull(result);
+    }
 }

@@ -94,4 +94,20 @@ public class AdministratorServiceTest {
         verify(mockResultSet, times(1)).getString("holder");
     }
 
+    @Test
+    public void testGetAccountHolder_AccountDoesNotExist() throws SQLException {
+        mockResultSet = mock(ResultSet.class);
+        when(mockAdmin.checkAccountExists("holder", "123")).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(false);
+
+        String result = administratorService.getAccountHolder("123");
+        assertNull(result);
+    }
+
+    @Test
+    public void testGetType_ReturnsAdmin() {
+        String result = administratorService.getType();
+        assertEquals("admin", result);
+    }
+
 }
