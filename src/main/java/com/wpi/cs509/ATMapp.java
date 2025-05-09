@@ -1,14 +1,32 @@
+package com.wpi.cs509;
+
 import com.google.inject.Inject;
+import com.wpi.cs509.database.DatabaseConnection;
+import com.wpi.cs509.database.DatabaseSchema;
+import com.wpi.cs509.service.IUserService;
+import com.wpi.cs509.service.IUserServiceBuilder;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
-
+/**
+ * The ATMapp class serves as the main entry point for interacting with the ATM system.
+ * It manages the user login process and serves as a controller to initiate the correct
+ * user services based on the account type.
+ */
 public class ATMapp {
     private final DatabaseConnection databaseConnection;
     private final IUserServiceBuilder userServiceBuilder;
 
+    /**
+     * Constructor to initialize ATMapp with the provided database connection
+     * and user service builder.
+     *
+     * @param databaseConnection A DatabaseConnection instance used to connect to the database
+     * @param userServiceBuilder A IUserServiceBuilder instance used to create user service objects
+     */
     @Inject
     public ATMapp (DatabaseConnection databaseConnection, IUserServiceBuilder userServiceBuilder ) {
         this.databaseConnection = databaseConnection;
@@ -17,10 +35,15 @@ public class ATMapp {
 
     /*Tightly Coupled
      try (Connection conn = MySQLSource.getConnection()){
-            DatabaseSchema.createTable();
-            IUserService account = promptLogin(conn);
+            database.DatabaseSchema.createTable();
+            service.IUserService account = promptLogin(conn);
     */
 
+    /**
+     * Starts the ATM application by creating a connection to the database,
+     * creating necessary tables, and prompting the user for login credentials.
+     * If login is successful, the appropriate user actions are displayed.
+     */
     public void startATM() {
         try (Connection conn = databaseConnection.getConnection()){
             DatabaseSchema.createTable(conn);
