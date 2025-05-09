@@ -10,7 +10,7 @@ import java.sql.SQLException;
  * including updating table balance, and fetching updated values
  */
 public class Customer {
-    private final Connection connection;
+    private final CustomerRepository repository;
     private final int accountID;
     private double balance;
 
@@ -21,10 +21,10 @@ public class Customer {
      * @param balance the initial balance of the customer
      * @param connection the active database connection
      */
-    public Customer(int accountID, double balance, Connection connection) {
+    public Customer(int accountID, double balance, CustomerRepository repository) {
         this.accountID = accountID;
         this.balance = balance;
-        this.connection = connection;
+        this.repository = repository;
     }
 
     /**
@@ -63,11 +63,8 @@ public class Customer {
     public boolean updateBalance(double balance) {
         String updateBalance = "UPDATE accounts SET balance = ? WHERE account_id = ?";
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(updateBalance);
-            preparedStatement.setDouble(1, balance);
-            preparedStatement.setInt(2, accountID);
-            int result = preparedStatement.executeUpdate();
-            if (result == 1) {
+            boolean result = repository.updateBalance(balance);
+            if (result) {
                 setBalance(balance);
                 return true;
             }
@@ -85,12 +82,7 @@ public class Customer {
     public double getDataBaseBalance() {
         String balanceQuery = " SELECT * FROM ACCOUNTS WHERE account_id = ?";
         try {
-            PreparedStatement preparedLoginMatch = connection.prepareStatement(balanceQuery);
-            preparedLoginMatch.setInt(1, accountID);
-            ResultSet balanceResult = preparedLoginMatch.executeQuery();
-            if (balanceResult.next()) {
-                return balanceResult.getDouble("balance");
-            }
+            return repository.getBalance(accountID);
         } catch (SQLException e) {
             e.printStackTrace();
         }

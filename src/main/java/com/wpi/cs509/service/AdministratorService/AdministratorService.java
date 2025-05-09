@@ -29,7 +29,7 @@ public class AdministratorService implements IUserService {
      * @throws SQLException if any functions called encounter a database error
      */
     public void showUserActions() throws SQLException {
-        System.out.println("Welcome to service.AdministratorService.Administrator Menu");
+        System.out.println("Welcome to Administrator Menu");
         System.out.println("1. Create New Account");
         System.out.println("2. Delete Existing Account");
         System.out.println("3. Update Account Information");
