@@ -12,7 +12,7 @@ import java.util.Scanner;
  * withdrawals, deposits, and displaying information
  * It implements the IUserService interface.
  */
-public class CustomerService implements IUserService {
+public class CustomerService {
     private final Customer customer;
 
     /**
@@ -29,111 +29,45 @@ public class CustomerService implements IUserService {
      *
      * @throws SQLException if operations encounter a database error
      */
-    public void showUserActions() throws SQLException {
-        System.out.println("\nWelcome to Customer Menu");
-        System.out.println("1. Withdraw Currency");
-        System.out.println("2. Deposit Currency");
-        System.out.println("3. Display Balance");
-        System.out.println("4. Exit\n");
 
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter your choice: ");
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                withdraw();
-                break;
-            case 2:
-                deposit();
-                break;
-            case 3:
-                displayBalance();
-                break;
-            default:
-                System.out.println("Exiting...\n");
-                System.exit(0);
-                break;
+    /*Throw the error text up */
+    public boolean withdraw(double amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount to withdraw must be greater than 0.");
         }
-    }
-
-    private void withdraw() throws SQLException {
-
-        String withdrawInput;
-        double withdrawAmount = 0;
-        boolean error;
-        do {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Enter amount to withdraw: ");
-            withdrawInput = scanner.nextLine();
-            try{
-                withdrawAmount = Double.parseDouble(withdrawInput);
-                if (withdrawAmount < 0) {
-                    System.err.println("Invalid Amount. Amount to Withdraw must be greater than 0.\n");
-                    error = true;
-                }
-                else if (customer.getBalance() < withdrawAmount) {
-                    System.err.println("Insufficient Balance\n");
-                    error = true;
-                } else {
-                    error = false;
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid Input, Please Retry.\n");
-                error = true;
-            }
-        } while (error);
-
-        double newBalance = customer.getBalance() - withdrawAmount;
+        if (customer.getBalance() < amount) {
+            throw new IllegalArgumentException("Insufficient balance.");
+        }
+        double newBalance = customer.getBalance() - amount;
         if (customer.updateBalance(newBalance)) {
-            printServiceDetails("Withdrawn", withdrawAmount, newBalance);
-            showUserActions();
-        } else {
-            System.err.println("Update Database Balance Failed\n");
-            showUserActions();
+            printServiceDetails("Withdrawn", amount, newBalance);
+            return true;
         }
+        return false;
     }
 
-    private void deposit() throws SQLException {
-        String depositInput;
-        double depositAmount = 0;
-        boolean error;
-        do {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Enter amount to Deposit: ");
-            depositInput = scanner.nextLine();
-            try{
-                depositAmount = Double.parseDouble(depositInput);
-                if (depositAmount <= 0) {
-                    System.out.println("Invalid Amount. Amount to Deposit must be greater than 0.\n");
-                    error = true;
-                } else {
-                    error = false;
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid Input, Please Retry.\n");
-                error = true;
-            }
-        } while (error);
-
-        double newBalance = customer.getBalance() + depositAmount;
+    public boolean deposit(double amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount to deposit must be greater than 0.");
+        }
+        double newBalance = customer.getBalance() + amount;
         if (customer.updateBalance(newBalance)) {
-            printServiceDetails("Deposited", depositAmount, newBalance);
-            showUserActions();
-        } else {
-            System.err.println("Update Database Balance Failed\n");
-            showUserActions();
+            printServiceDetails("Deposited", amount, newBalance);
+            return true;
         }
+        return false;
     }
 
-    private void displayBalance() throws SQLException {
-        printServiceDetails("Display Balance", 0, customer.getDataBaseBalance());
-        showUserActions();
+
+    public double displayBalance(){
+        double dbBalance = customer.getDataBaseBalance();
+        printServiceDetails("Display Balance", 0, dbBalance);
+        return dbBalance;
     }
 
     private void printServiceDetails(String serviceType, double serviceAmount, double newBalance) {
-        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("MM/dd/yyyy ");
-        LocalDate today = LocalDate.now();
-        String formatDate = today.format(myFormatObj);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        String formatDate = LocalDate.now().format(formatter);
 
         System.out.println("\nSuccessful Transaction:");
         System.out.println("Account ID: " + customer.getAccountID());

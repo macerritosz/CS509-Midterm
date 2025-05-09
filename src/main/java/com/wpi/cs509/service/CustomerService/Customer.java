@@ -19,7 +19,7 @@ public class Customer {
      *
      * @param accountID unique account ID for customer
      * @param balance the initial balance of the customer
-     * @param connection the active database connection
+     * @param repository the active database connection
      */
     public Customer(int accountID, double balance, CustomerRepository repository) {
         this.accountID = accountID;
@@ -61,9 +61,8 @@ public class Customer {
      * @return a boolean to indicate if update executed
      */
     public boolean updateBalance(double balance) {
-        String updateBalance = "UPDATE accounts SET balance = ? WHERE account_id = ?";
         try {
-            boolean result = repository.updateBalance(balance);
+            boolean result = repository.updateBalance(accountID, balance);
             if (result) {
                 setBalance(balance);
                 return true;
@@ -80,7 +79,6 @@ public class Customer {
      * @return a double corresponding to current balance in customer's entry in accounts table
      */
     public double getDataBaseBalance() {
-        String balanceQuery = " SELECT * FROM ACCOUNTS WHERE account_id = ?";
         try {
             return repository.getBalance(accountID);
         } catch (SQLException e) {
