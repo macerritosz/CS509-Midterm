@@ -1,6 +1,6 @@
-package com.wpi.cs509.service.ui;
+package com.wpi.cs509.ui;
 
-import com.wpi.cs509.service.AdministratorService.AdministratorService;
+import com.wpi.cs509.service.AdministratorService;
 
 import java.sql.ResultSet;
 import java.util.Scanner;

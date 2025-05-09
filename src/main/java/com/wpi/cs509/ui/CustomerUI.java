@@ -1,6 +1,6 @@
-package com.wpi.cs509.service.ui;
+package com.wpi.cs509.ui;
 
-import com.wpi.cs509.service.CustomerService.CustomerService;
+import com.wpi.cs509.service.CustomerService;
 
 import java.util.Scanner;
 

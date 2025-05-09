@@ -3,8 +3,12 @@ package com.wpi.cs509;
 import com.google.inject.Inject;
 import com.wpi.cs509.database.DatabaseConnection;
 import com.wpi.cs509.database.DatabaseSchema;
+import com.wpi.cs509.service.AdministratorService;
+import com.wpi.cs509.service.CustomerService;
 import com.wpi.cs509.service.IUserService;
 import com.wpi.cs509.service.IUserServiceBuilder;
+import com.wpi.cs509.ui.AdminUI;
+import com.wpi.cs509.ui.CustomerUI;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -49,7 +53,14 @@ public class ATMapp {
             DatabaseSchema.createTable(conn);
             IUserService account = promptLogin(conn);
             if(account != null) {
-                account.showUserActions();
+                String accountType = account.getType();
+                if(accountType.equalsIgnoreCase("admin")) {
+                    AdminUI adminUI = new AdminUI((AdministratorService) account);
+                    adminUI.showAdminMenu();
+                } else {
+                    CustomerUI customerUI = new CustomerUI((CustomerService) account);
+                    customerUI.showCustomerMenu();
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

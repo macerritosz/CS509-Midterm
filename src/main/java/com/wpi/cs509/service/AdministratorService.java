@@ -1,6 +1,6 @@
-package com.wpi.cs509.service.AdministratorService;
+package com.wpi.cs509.service;
 
-import com.wpi.cs509.service.IUserService;
+import com.wpi.cs509.entity.Administrator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

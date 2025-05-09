@@ -5,8 +5,6 @@ import com.wpi.cs509.database.DatabaseConnection;
 import com.wpi.cs509.database.MySQLConnection;
 import com.wpi.cs509.service.IUserServiceBuilder;
 import com.wpi.cs509.service.ServiceBuilder;
-import com.wpi.cs509.service.repository.AdminRepository;
-import com.wpi.cs509.service.repository.CustomerRepository;
 
 /**
  * Guice dependency Injection module to bind interfaces to concrete implementations

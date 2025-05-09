@@ -1,4 +1,4 @@
-package com.wpi.cs509.service.repository;
+package com.wpi.cs509.repository;
 
 import com.google.inject.Inject;
 import com.wpi.cs509.database.DatabaseConnection;

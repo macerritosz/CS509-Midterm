@@ -1,10 +1,10 @@
 package com.wpi.cs509.service;
 
 import com.google.inject.Inject;
-import com.wpi.cs509.service.AdministratorService.Administrator;
-import com.wpi.cs509.service.AdministratorService.AdministratorService;
-import com.wpi.cs509.service.CustomerService.Customer;
-import com.wpi.cs509.service.CustomerService.CustomerService;
+import com.wpi.cs509.entity.Administrator;
+import com.wpi.cs509.entity.Customer;
+import com.wpi.cs509.repository.CustomerRepository;
+import com.wpi.cs509.repository.AdminRepository;
 
 
 import java.sql.Connection;
@@ -14,15 +14,19 @@ import java.sql.SQLException;
 /**
  * ServiceBuilder is responsible for creating IUserService objects for either an Administrator or Customer
  *
+ * data from the database to determine the appropriate service to be returned.
  */
 public class ServiceBuilder implements IUserServiceBuilder {
-
+    private final AdminRepository adminRepository;
+    private final CustomerRepository customerRepository;
     /**
      * Default constructor for ServiceBuilder.
      */
     @Inject
-    public ServiceBuilder() {}
-
+    public ServiceBuilder(AdminRepository adminRepository, CustomerRepository customerRepository) {
+        this.adminRepository = adminRepository;
+        this.customerRepository = customerRepository;
+    }
     /**
      * Creates IUserService object of type Admin or Customer depending on accountType
      *
@@ -36,10 +40,10 @@ public class ServiceBuilder implements IUserServiceBuilder {
     public IUserService createUserService(Connection conn, String accountType, ResultSet result) throws SQLException {
         if(accountType.equals("ADMIN")) {
             System.out.println("Admin Login Successful");
-            return new AdministratorService(createAdministrator(conn));
+            return new AdministratorService(createAdministrator());
         } else {
             System.out.println("Customer Login Successful");
-            return new CustomerService(createCustomerFromResultSet(result, conn));
+            return new CustomerService(createCustomerFromResultSet(result));
         }
     }
 
@@ -47,23 +51,21 @@ public class ServiceBuilder implements IUserServiceBuilder {
      * Creates a Customer instance using the provided ResultSet containing the user's data.
      *
      * @param resultSet A result set containing customer database information
-     * @param conn A connection object with active connection to database
      * @return A Customer instance
      * @throws SQLException if database error occurs when reading resultSet
      */
-    public Customer createCustomerFromResultSet(ResultSet resultSet, Connection conn) throws SQLException {
+    public Customer createCustomerFromResultSet(ResultSet resultSet) throws SQLException {
         int accountID = resultSet.getInt("account_ID");
         int balance = resultSet.getInt("balance");
-        return new Customer(accountID, balance, conn);
+        return new Customer(accountID, balance, customerRepository);
     }
 
     /**
      *  Creates an Administrator instance using the provided database connection.
      *
-     * @param conn A connection object with active connection to database
      * @return A Administrator Instance
      */
-    public Administrator createAdministrator(Connection conn){
-        return new Administrator(conn);
+    public Administrator createAdministrator(){
+        return new Administrator(adminRepository);
     }
 }

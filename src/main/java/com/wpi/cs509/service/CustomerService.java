@@ -1,6 +1,6 @@
-package com.wpi.cs509.service.CustomerService;
+package com.wpi.cs509.service;
 
-import com.wpi.cs509.service.IUserService;
+import com.wpi.cs509.entity.Customer;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

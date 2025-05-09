@@ -1,4 +1,4 @@
-package com.wpi.cs509.service.ui;
+package com.wpi.cs509.ui;
 
 public interface UI {
     void displayMessage(String message);

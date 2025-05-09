@@ -1,6 +1,6 @@
-package com.wpi.cs509.service.CustomerService;
+package com.wpi.cs509.entity;
 
-import com.wpi.cs509.service.repository.CustomerRepository;
+import com.wpi.cs509.repository.CustomerRepository;
 
 import java.sql.SQLException;
 
