@@ -51,17 +51,14 @@ public class AdministratorTest {
     }
 
     @Test
-    public void testPushNewAccount_Failure() throws SQLException {
+    public void testPushNewAccount_FailureException() throws SQLException {
         mockPreparedStatement = mock(PreparedStatement.class);
-
         //send statement, and mock update, return 0 for 0 insertions made
-        when(mockConnection.prepareStatement(anyString(), eq(Statement.RETURN_GENERATED_KEYS))).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+        when(mockConnection.prepareStatement(anyString(), eq(Statement.RETURN_GENERATED_KEYS))).thenThrow(new SQLException());
 
-        mockAdministrator.pushNewAccount("testlogin", "12345", "John Doe", "1000", "ACTIVE");
-
-        verify(mockPreparedStatement).executeUpdate();
-
+        assertThrows(SQLException.class, () -> {
+            mockAdministrator.pushNewAccount("testlogin", "12345", "John Doe", "1000", "ACTIVE");
+        });
     }
 
     /* Delete Account */

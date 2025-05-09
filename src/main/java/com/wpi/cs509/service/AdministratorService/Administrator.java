@@ -29,7 +29,7 @@ public class Administrator {
      * @param status current account status ACTIVE / DISABLED
      * @throws SQLException If database execution or access error occurs
      */
-    public void pushNewAccount(String login, String pin, String name, String balance, String status) throws SQLException {
+    public int pushNewAccount(String login, String pin, String name, String balance, String status) throws SQLException {
         String insertStatement = "insert into accounts (holder, balance, login, pin, status) values(?,?,?,?,?)";
 
         PreparedStatement preparedUserQuery = connection.prepareStatement(insertStatement, Statement.RETURN_GENERATED_KEYS);
@@ -44,43 +44,39 @@ public class Administrator {
         if (result == 1) {
             ResultSet rs = preparedUserQuery.getGeneratedKeys();
             if (rs.next()) {
-                System.out.println("Account Successfully Created -- Account ID: " + rs.getInt(1));
+                return rs.getInt(1);
             }
-        } else {
-            System.err.println("Account Creation Failed\n");
         }
+        throw new SQLException("Account Creation Failed");
     }
 
     /**
-     * Deletes row from Accounts table corresponding to accountNum and prints confirmation message
+     * Deletes the row from the Accounts table corresponding to the provided account number.
      *
-     * @param accountNum an accounts unique ID as a string
-     * @throws SQLException If database execution error occurs
+     * @param accountNum the unique account ID as a string
+     * @return true if the account was successfully deleted, false if no account matched
+     * @throws SQLException if a database execution error occurs
      */
-    public void deleteExistingAccount(String accountNum) throws SQLException {
+    public boolean deleteExistingAccount(String accountNum) throws SQLException {
         String deleteStatement = "DELETE FROM accounts WHERE account_id = ?";
         PreparedStatement preparedDeleteStatement = connection.prepareStatement(deleteStatement);
         preparedDeleteStatement.setString(1, accountNum);
         int result = preparedDeleteStatement.executeUpdate();
-        if (result == 1) {
-            System.out.println("Account Successfully Deleted -- Account ID: " + accountNum +"\n");
-        } else {
-            System.out.println("Account Deletion Failed\n");
-        }
+        return result == 1;
     }
 
     /**
-     * Updates table entry in accounts corresponding to the following passed in and prints confirmation message
+     * Updates the account information in the Accounts table corresponding to the provided account number.
      *
-     * @param updatedHolder string for updated account holder name
-     * @param updatedStatus string for ACTIVE / DISABLED
-     * @param updatedLogin string for new login for account
-     * @param updatedPin string for new 5 digit PIN code
-     * @param accountNum  string for unique number of account to edit
-     * @throws SQLException If a database access / write error occurs
+     * @param updatedHolder updated account holder name
+     * @param updatedStatus updated account status ("ACTIVE" or "DISABLED")
+     * @param updatedLogin  new login identifier for the account
+     * @param updatedPin    new 5-digit PIN code
+     * @param accountNum    unique account number to update
+     * @return true if the account was successfully updated, false if no account matched
+     * @throws SQLException if a database access or write error occurs
      */
-    public void updateExistingAccount(String updatedHolder, String updatedStatus, String updatedLogin, String updatedPin, String accountNum) throws SQLException {
-        /* For simplicity, make sure the input cannot be empty, if so retry */
+    public boolean updateExistingAccount(String updatedHolder, String updatedStatus, String updatedLogin, String updatedPin, String accountNum) throws SQLException {
         String updateAccountInfo = "UPDATE accounts SET holder = ?, status = ?, login = ?, pin = ? WHERE account_id = ?";
         PreparedStatement preparedUpdateStatement = connection.prepareStatement(updateAccountInfo);
         preparedUpdateStatement.setString(1, updatedHolder);
@@ -88,14 +84,10 @@ public class Administrator {
         preparedUpdateStatement.setString(3, updatedLogin);
         preparedUpdateStatement.setString(4, updatedPin);
         preparedUpdateStatement.setString(5, accountNum);
-        int result = preparedUpdateStatement.executeUpdate();
-        if (result == 1) {
-            System.out.println("Account Successfully Updated For Holder: " + updatedHolder);
-        } else {
-            System.err.println("Account Updated Failed\n");
-        }
-    }
 
+        int result = preparedUpdateStatement.executeUpdate();
+        return result == 1;
+    }
     /**
      * A function to see if unique user login already exists in accounts table
      *

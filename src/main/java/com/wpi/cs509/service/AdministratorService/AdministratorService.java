@@ -108,7 +108,12 @@ public class AdministratorService implements IUserService {
 
         } while (error);
 
-        admin.pushNewAccount(login, pin, name, balance, status);
+        try {
+            int accID = admin.pushNewAccount(login, pin, name, balance, status);
+            System.out.println("Account Successfully Created -- Account ID: " + accID);
+        } catch (SQLException e) {
+            System.err.println("Error while creating new account \n");
+        }
         showUserActions();
     }
 
@@ -143,7 +148,13 @@ public class AdministratorService implements IUserService {
                 showUserActions();
             }
             if (accountNum.equals(matchNum)) {
-                admin.deleteExistingAccount(matchNum);
+
+                boolean result = admin.deleteExistingAccount(matchNum);
+                if (result) {
+                    System.out.println("Account Successfully Deleted -- Account ID: " + accountNum + "\n");
+                } else {
+                    System.out.println("Account Deletion Failed\n");
+                }
                 showUserActions();
             } else {
                 System.err.println("Numbers Did Not Match, Please pick another action... \n");
@@ -201,7 +212,12 @@ public class AdministratorService implements IUserService {
             }
         }
         /* For simplicity, make sure the input cannot be empty, if so retry */
-        admin.updateExistingAccount(updatedHolder, updatedStatus, updatedLogin, updatedPin,accountNum);
+        boolean result = admin.updateExistingAccount(updatedHolder, updatedStatus, updatedLogin, updatedPin, accountNum);
+        if (result) {
+            System.out.println("Account Successfully Updated For Holder: " + updatedHolder);
+        } else {
+            System.err.println("Account Update Failed\n");
+        }
         showUserActions();
     }
 
