@@ -11,6 +11,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * ServiceBuilder is responsible for creating IUserService objects for either an Administrator or Customer
+ *
+ */
 public class ServiceBuilder implements IUserServiceBuilder {
 
     /**

@@ -2,6 +2,9 @@ package com.wpi.cs509.database;
 
 import java.sql.*;
 
+/**
+ * Database Schema holds the code declaration for the accounts table to execute if it does not exist already
+ */
 public class DatabaseSchema {
     /**
      * Creates the 'accounts' table in the database with the specified schema.

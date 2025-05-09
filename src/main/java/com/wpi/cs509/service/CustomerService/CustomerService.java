@@ -25,7 +25,9 @@ public class CustomerService implements IUserService {
     }
 
     /**
-     * @throws SQLException
+     * A function to allow Customer to Withdraw, Deposit, or display balance
+     *
+     * @throws SQLException if operations encounter a database error
      */
     public void showUserActions() throws SQLException {
         System.out.println("\nWelcome to Customer Menu");

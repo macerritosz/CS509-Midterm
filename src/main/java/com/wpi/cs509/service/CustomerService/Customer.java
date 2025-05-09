@@ -27,13 +27,29 @@ public class Customer {
         this.connection = connection;
     }
 
+    /**
+     * Getter for accountID
+     *
+     * @return integer of Customer Account id
+     */
     public int getAccountID() {
         return accountID;
     }
 
+    /**
+     * Getter for balance
+     *
+     * @return Customer balance value
+     */
     public double getBalance() {
         return balance;
     }
+
+    /**
+     * Setter for balance
+     *
+     * @param balance new balance to set Customer balance to
+     */
     public void setBalance (double balance) {
         this.balance = balance;
     }
