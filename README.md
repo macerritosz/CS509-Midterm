@@ -1,4 +1,6 @@
+Docs: https://macerritosz.github.io/CS509-Midterm/
 3. What software architecture are you using? e.g. Layered/How many layers? Repository? Something else?
+
 
 I am using a 5 layered architecture with a UI layer, Service Layer, Entity Layer, Repository Layer, and the Database layer 
 externally.
