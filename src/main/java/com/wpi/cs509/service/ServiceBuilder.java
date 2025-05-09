@@ -29,14 +29,13 @@ public class ServiceBuilder implements IUserServiceBuilder {
     /**
      * Creates IUserService object of type Admin or Customer depending on accountType
      *
-     * @param conn A connection object with active connection to database
      * @param accountType A string pertaining to account type
      * @param result A result set containing logged-in user's database information
      * @return IUserService that can be AdministratorService or CustomerService
      * @throws SQLException if database error occurs when reading result
      */
     @Override
-    public IUserService createUserService(Connection conn, String accountType, ResultSet result) throws SQLException {
+    public IUserService createUserService(String accountType, ResultSet result) throws SQLException {
         if(accountType.equals("ADMIN")) {
             System.out.println("Admin Login Successful");
             return new AdministratorService(createAdministrator());

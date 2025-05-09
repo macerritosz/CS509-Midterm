@@ -88,7 +88,7 @@ public class ATMapp {
                 return null;
             } else {
                 String account_type = loginResult.getString("Account_Type");
-                return userServiceBuilder.createUserService(conn, account_type, loginResult );
+                return userServiceBuilder.createUserService(account_type, loginResult );
             }
         } catch (SQLException e) {
             System.out.println("Login Query Error: " + e.getMessage());
