@@ -1,8 +1,7 @@
 package com.wpi.cs509.service.CustomerService;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import com.wpi.cs509.service.repository.CustomerRepository;
+
 import java.sql.SQLException;
 
 /**

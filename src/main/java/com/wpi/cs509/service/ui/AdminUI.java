@@ -46,7 +46,7 @@ public class AdminUI implements UI {
         displayMessage("Creating new account... ");
         //compress do -> while into func that takes func as parameter
         String login = loopUntilValid("Enter new account Login: ", value -> !value.isEmpty() );
-        String pin = loopUntilValid("Enter new account Pin: ", value -> !value.matches("\\d{5}") );
+        String pin = loopUntilValid("Enter new account Pin: ", value -> value.matches("\\d{5}") );
         String name = loopUntilValid("Enter new account Name: ", value -> !value.isEmpty() );
         String balance = loopUntilValid("Enter new account Balance: ", value -> !value.isEmpty() );
         String status = loopUntilValid("Enter new account Status: ", value -> value.equalsIgnoreCase("ACTIVE") || value.equalsIgnoreCase("DISABLED") );

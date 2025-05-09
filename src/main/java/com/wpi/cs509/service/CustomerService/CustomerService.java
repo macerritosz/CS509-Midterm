@@ -5,14 +5,13 @@ import com.wpi.cs509.service.IUserService;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Scanner;
 
 /**
  * CustomerService provides an interface for customers to manage
  * withdrawals, deposits, and displaying information
  * It implements the IUserService interface.
  */
-public class CustomerService {
+public class CustomerService implements IUserService {
     private final Customer customer;
 
     /**
@@ -76,5 +75,10 @@ public class CustomerService {
             System.out.println(serviceType + ": " + serviceAmount);
         }
         System.out.println("Balance: " + newBalance);
+    }
+
+    @Override
+    public String getType() {
+        return "customer";
     }
 }

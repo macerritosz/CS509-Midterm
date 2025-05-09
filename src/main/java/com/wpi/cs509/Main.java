@@ -13,7 +13,7 @@ public class Main {
     /*
         Default Admin and service.CustomerService.Customer Accounts:
         Admin: John123 12345
-        service.CustomerService.Customer: Max123 12345
+        Customer: Max123 12345
      */
 
     /**
