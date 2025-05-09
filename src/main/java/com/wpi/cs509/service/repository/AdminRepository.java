@@ -1,12 +1,15 @@
 package com.wpi.cs509.service.repository;
 
+import com.google.inject.Inject;
+import com.wpi.cs509.database.DatabaseConnection;
+
 import java.sql.*;
 
 public class AdminRepository {
     private final Connection connection;
-
-    public AdminRepository(Connection connection) {
-        this.connection = connection;
+    @Inject
+    public AdminRepository(DatabaseConnection databaseConnection) throws SQLException {
+        this.connection = databaseConnection.getConnection();
     }
 
     public int insertAccount(String login, String pin, String name, String balance, String status) throws SQLException {

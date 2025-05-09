@@ -1,5 +1,8 @@
 package com.wpi.cs509.service.repository;
 
+import com.google.inject.Inject;
+import com.wpi.cs509.database.DatabaseConnection;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,8 +11,9 @@ import java.sql.SQLException;
 public class CustomerRepository {
     private final Connection connection;
 
-    public CustomerRepository(Connection connection) {
-        this.connection = connection;
+    @Inject
+    public CustomerRepository(DatabaseConnection databaseConnection) throws SQLException {
+        this.connection = databaseConnection.getConnection();
     }
 
     public boolean updateBalance(int accountID, double balance) throws SQLException {
