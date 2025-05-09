@@ -1,4 +1,4 @@
-package com.wpi.cs509.service.CustomerService;
+package com.wpi.cs509.service.repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

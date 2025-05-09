@@ -1,16 +1,14 @@
-package com.wpi.cs509.service.CustomerService;
+package com.wpi.cs509.service.ui;
 
-import com.wpi.cs509.service.UI;
+import com.wpi.cs509.service.CustomerService.CustomerService;
 
 import java.util.Scanner;
 
 public class CustomerUI implements UI {
-    private final UI ui;
     private final CustomerService customerService;
     private final Scanner scanner = new Scanner(System.in);
 
-    public CustomerUI(UI ui, CustomerService customerService) {
-        this.ui = ui;
+    public CustomerUI( CustomerService customerService) {
         this.customerService = customerService;
     }
 
@@ -18,23 +16,23 @@ public class CustomerUI implements UI {
         boolean exit = false;
 
         while (!exit) {
-            ui.displayMessage("\nWelcome to Customer Menu");
-            ui.displayMessage("1. Withdraw Currency");
-            ui.displayMessage("2. Deposit Currency");
-            ui.displayMessage("3. Display Balance");
-            ui.displayMessage("4. Exit\n");
+            displayMessage("\nWelcome to Customer Menu");
+            displayMessage("1. Withdraw Currency");
+            displayMessage("2. Deposit Currency");
+            displayMessage("3. Display Balance");
+            displayMessage("4. Exit\n");
 
-            String choice = ui.getInput("Enter your choice: ");
+            String choice = getInput("Enter your choice: ");
 
             switch (choice) {
                 case "1" -> handleWithdraw();
                 case "2" -> handleDeposit();
                 case "3" -> handleDisplayBalance();
                 case "4" -> {
-                    ui.displayMessage("Exiting...\n");
+                    displayMessage("Exiting...\n");
                     exit = true;
                 }
-                default -> ui.displayError("Invalid choice. Please try again.");
+                default -> displayError("Invalid choice. Please try again.");
             }
         }
     }
@@ -44,9 +42,9 @@ public class CustomerUI implements UI {
             double amount = getPositiveDoubleInput("Enter amount to withdraw: ");
             customerService.withdraw(amount);
         } catch (IllegalArgumentException e) {
-            ui.displayError(e.getMessage());
+            displayError(e.getMessage());
         } catch (Exception e) {
-            ui.displayError("Failed to process withdrawal: " + e.getMessage());
+            displayError("Failed to process withdrawal: " + e.getMessage());
         }
     }
 
@@ -55,18 +53,18 @@ public class CustomerUI implements UI {
             double amount = getPositiveDoubleInput("Enter amount to deposit: ");
             customerService.deposit(amount);
         } catch (IllegalArgumentException e) {
-            ui.displayError(e.getMessage());
+            displayError(e.getMessage());
         } catch (Exception e) {
-            ui.displayError("Failed to process deposit: " + e.getMessage());
+            displayError("Failed to process deposit: " + e.getMessage());
         }
     }
 
     private void handleDisplayBalance() {
         try {
             double balance = customerService.displayBalance();
-            ui.displayMessage("Current Balance: " + balance);
+            displayMessage("Current Balance: " + balance);
         } catch (Exception e) {
-            ui.displayError("Failed to retrieve balance: " + e.getMessage());
+            displayError("Failed to retrieve balance: " + e.getMessage());
         }
     }
 
@@ -74,15 +72,15 @@ public class CustomerUI implements UI {
         double amount;
         while (true) {
             try {
-                String input = ui.getInput(prompt);
+                String input = getInput(prompt);
                 amount = Double.parseDouble(input);
                 if (amount <= 0) {
-                    ui.displayError("Amount must be greater than 0.");
+                    displayError("Amount must be greater than 0.");
                 } else {
                     return amount;
                 }
             } catch (NumberFormatException e) {
-                ui.displayError("Invalid number format. Please try again.");
+                displayError("Invalid number format. Please try again.");
             }
         }
     }

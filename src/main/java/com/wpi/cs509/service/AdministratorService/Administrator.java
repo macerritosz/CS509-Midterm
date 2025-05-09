@@ -1,6 +1,6 @@
 package com.wpi.cs509.service.AdministratorService;
 
-import com.wpi.cs509.repository.AdminRepository;
+import com.wpi.cs509.service.repository.AdminRepository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
