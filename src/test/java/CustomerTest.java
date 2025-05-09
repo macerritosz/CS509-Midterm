@@ -1,121 +1,86 @@
-
-import com.wpi.cs509.service.CustomerService.Customer;
-import com.wpi.cs509.service.CustomerService.CustomerService;
-
+import com.wpi.cs509.repository.CustomerRepository;
+import com.wpi.cs509.entity.Customer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.sql.*;
-
 public class CustomerTest {
-    private Connection mockConnection;
-    private Customer mockCustomer;
-    private CustomerService mockCustomerService;
-    private PreparedStatement mockPreparedStatement;
-    private ResultSet mockResultSet;
+
+    private CustomerRepository mockRepo;
+    private Customer customer;
 
     @BeforeEach
-    public void setUp() {
-        mockConnection = Mockito.mock(Connection.class);
-        mockCustomer = new Customer(1, 100.0,  mockConnection);
+    void setUp() {
+        mockRepo = mock(CustomerRepository.class);
+        customer = new Customer(1, 1000.0, mockRepo);
     }
 
     @Test
-    public void testUpdateBalance_Success() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-
-        mockCustomer.updateBalance(200.0);
-
-        verify(mockPreparedStatement).setDouble(1, 200);
-        verify(mockPreparedStatement).setInt(2,mockCustomer.getAccountID());
-        verify(mockPreparedStatement).executeUpdate();
-
-    }
-    @Test
-    public void testUpdateBalance_Failure() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
-
-        mockCustomer.updateBalance(200.0);
-
-        verify(mockPreparedStatement).setDouble(1, 200);
-        verify(mockPreparedStatement).setInt(2,mockCustomer.getAccountID());
-        verify(mockPreparedStatement).executeUpdate();
-
-    }
-    @Test
-    public void testUpdateBalanceThrowsException() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException());
-
-        mockCustomer.updateBalance(200.0);
-
+    void testGetAccountID() {
+        assertEquals(1, customer.getAccountID());
     }
 
     @Test
-    public void testGetDatabaseBalance_Success() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(true);
-        when(mockResultSet.getDouble("balance")).thenReturn(1000.0);
-
-        mockCustomer.getDataBaseBalance();
-
-        verify(mockPreparedStatement).setInt(1, mockCustomer.getAccountID());
-        verify(mockPreparedStatement).executeQuery();
-        verify(mockResultSet).next();
-        verify(mockResultSet).getDouble("balance");
-
+    void testGetBalance() {
+        assertEquals(1000.0, customer.getBalance());
     }
-
 
     @Test
-    public void testGetDatabaseBalance_Failure() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(false);
-        when(mockResultSet.getDouble("balance")).thenReturn(1000.0);
-
-        mockCustomer.getDataBaseBalance();
-
-        verify(mockPreparedStatement).setInt(1, mockCustomer.getAccountID());
-        verify(mockPreparedStatement).executeQuery();
-        verify(mockResultSet).next();
-
+    void testSetBalance() {
+        customer.setBalance(2000.0);
+        assertEquals(2000.0, customer.getBalance());
     }
+
     @Test
-    public void testGetDatabaseBalanceThrowsException() throws SQLException {
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException());
-
-        mockCustomer.getDataBaseBalance();
+    void testUpdateBalance_success() throws SQLException {
+        double newBalance = 1500.0;
+        when(mockRepo.updateBalance(1, newBalance)).thenReturn(true);
+        boolean result = customer.updateBalance(newBalance);
+        assertTrue(result);
+        assertEquals(newBalance, customer.getBalance());
+        verify(mockRepo, times(1)).updateBalance(1, newBalance);
     }
 
+    @Test
+    void testUpdateBalance_failure() throws SQLException {
+        double newBalance = 1500.0;
+        when(mockRepo.updateBalance(1, newBalance)).thenReturn(false);
+        boolean result = customer.updateBalance(newBalance);
+
+
+        assertFalse(result);
+        verify(mockRepo, times(1)).updateBalance(1, newBalance);
+    }
+
+    @Test
+    void testUpdateBalance_ThrowsError() throws SQLException {
+        double newBalance = 1500.0;
+        when(mockRepo.updateBalance(1, newBalance)).thenThrow(new SQLException());
+        boolean result = customer.updateBalance(newBalance);
+
+
+        assertFalse(result);
+        verify(mockRepo, times(1)).updateBalance(1, newBalance);
+    }
+
+    @Test
+    void testGetDatabaseBalance_success() throws SQLException {
+        double databaseBalance = 1200.0;
+        when(mockRepo.getBalance(1)).thenReturn(databaseBalance);
+        double result = customer.getDataBaseBalance();
+        assertEquals(databaseBalance, result);
+        verify(mockRepo, times(1)).getBalance(1);
+    }
+
+    @Test
+    void testGetDatabaseBalance_failure() throws SQLException {
+        when(mockRepo.getBalance(1)).thenThrow(SQLException.class);
+        double result = customer.getDataBaseBalance();
+        assertEquals(0.0, result);
+        verify(mockRepo, times(1)).getBalance(1);
+    }
 }
