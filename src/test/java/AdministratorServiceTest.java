@@ -96,6 +96,7 @@ public class AdministratorServiceTest {
 
     @Test
     public void testGetAccountHolder_AccountDoesNotExist() throws SQLException {
+        mockResultSet = mock(ResultSet.class);
         when(mockAdmin.checkAccountExists("holder", "123")).thenReturn(mockResultSet);
         when(mockResultSet.next()).thenReturn(false);
 
